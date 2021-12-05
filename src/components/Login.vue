@@ -56,7 +56,7 @@ export default {
       },
       labelPosition: 'right',
       loginForm: {
-        username: 'hcf200',
+        username: 'hcf2000',
         password: '123456',
       }
     }
