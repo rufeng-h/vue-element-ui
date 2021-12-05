@@ -13,4 +13,7 @@ export default {
   font-size: 0.9em;
   margin-bottom: 15px;
 }
+.el-pagination {
+  margin-top: 15px;
+}
 </style>

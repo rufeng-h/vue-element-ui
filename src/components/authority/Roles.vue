@@ -104,6 +104,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
+        <el-table-column prop="updateTime" label="最后更新"></el-table-column>
         <el-table-column fixed="right" label="操作" width="180">
           <template slot-scope="scope">
             <el-button
@@ -128,6 +129,20 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!--   分页区域   -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        @next-click="nextPage"
+        @prev-click="prevPage"
+        :current-page="pageData.current"
+        :page-sizes="[1, 2, 5, 10, 15, 20]"
+        :page-size="10"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pageData.total"
+      >
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -166,7 +181,7 @@ export default {
   },
   methods: {
     async getRoleList () {
-      const { data: { data: pageData } } = await this.$axios.get(`/api/role/list?pageNum=${this.pageData.current}&pageSize=${this.pageData.size}`)
+      const { data: { data: pageData } } = await this.$axios.get(`/api/role/withPermissions?pageNum=${this.pageData.current}&pageSize=${this.pageData.size}`)
       pageData.records = pageData.records.map(this.treefy)
       this.pageData = pageData
     },
@@ -292,6 +307,26 @@ export default {
       }
       return [checkedKeys, halfCheckedKeys]
     },
+    /* 处理pageSize变化 */
+    async handleSizeChange (size) {
+      this.pageData.size = size
+      await this.getRoleList()
+    },
+    /*当前页改变*/
+    async handleCurrentChange (current) {
+      this.pageData.current = current
+      await this.getRoleList()
+    },
+    /* 下一页 */
+    async nextPage () {
+      this.pageData.current++
+      await this.getRoleList()
+    },
+
+    async prevPage () {
+      this.pageData.current--
+      await this.getRoleList()
+    },
     handleClose (done) {
       done()
     },
@@ -318,5 +353,9 @@ export default {
 .vcenter {
   display: flex;
   align-items: center;
+}
+
+.el-pagination {
+  margin-top: 15px;
 }
 </style>
