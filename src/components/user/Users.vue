@@ -253,7 +253,7 @@
         <!--   行展开 TODO 样式     -->
         <el-table-column type="expand">
           <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
+            <el-form label-position="left" inline>
               <el-form-item label="用户名">
                 <span>{{ props.row.username }}</span>
               </el-form-item>
@@ -562,7 +562,6 @@ export default {
     },
     /* 修改用户 */
     showEditDlg (user) {
-
       Object.assign(this.userEditForm, user)
       this.userEditForm.roles = user.roles.map(role => role.id)
       this.isUserEditDlgVisible = true

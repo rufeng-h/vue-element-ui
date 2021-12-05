@@ -65,6 +65,10 @@ export default {
     this.initMenuList()
     this.getUserInfo()
   },
+  updated () {
+    this.traceUrl()
+  },
+
   data () {
     return {
       userInfo: {},
@@ -74,6 +78,20 @@ export default {
     }
   },
   methods: {
+    traceUrl () {
+      /* 以下实现菜单高亮和url路径同步变化 */
+      let url =
+        this.$router.mode === "hash"
+          ? location.hash.substring(2)
+          : location.pathname.substring(1)
+      this.menuList.forEach((menu) =>
+        menu.children.forEach((subMenu) => {
+          if (subMenu.path === url) {
+            this.curActiveMenu = subMenu.id + ""
+          }
+        })
+      )
+    },
     logout () {
       this.$axios.get("/logout")
       this.$router.push({ name: "index" })
@@ -91,19 +109,6 @@ export default {
         return
       }
       this.menuList = res.data.data
-
-      /* 以下实现菜单高亮和url路径同步变化 */
-      let url =
-        this.$router.mode === "hash"
-          ? location.hash.substring(2)
-          : location.pathname.substring(1)
-      this.menuList.forEach((menu) =>
-        menu.children.forEach((subMenu) => {
-          if (subMenu.path === url) {
-            this.curActiveMenu = subMenu.id + ""
-          }
-        })
-      )
     },
     toggleCollapseMenu () {
       this.isCollapseMenu = !this.isCollapseMenu
