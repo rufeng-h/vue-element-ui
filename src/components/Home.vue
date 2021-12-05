@@ -7,7 +7,7 @@
           <span>电商后台管理系统</span>
         </div>
         <div>
-          <span>欢迎{{ userInfo.username }}</span>
+          <span>欢迎{{ userInfo.name }}</span>
           <el-button type="info" @click="logout">退出</el-button>
         </div>
       </el-header>
@@ -47,7 +47,10 @@
           </el-menu>
         </el-aside>
         <el-main>
-          <router-view></router-view>
+          <router-view
+            :userInfo="userInfo"
+            :hasAuthority="hasAuthority"
+          ></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -61,14 +64,13 @@ const { isNavigationFailure, NavigationFailureType } = VueRouter
 
 export default {
   name: "Home",
-  created () {
-    this.initMenuList()
-    this.getUserInfo()
+  async created () {
+    await this.getUserInfo()
+    await this.initMenuList()
   },
   updated () {
     this.traceUrl()
   },
-
   data () {
     return {
       userInfo: {},
@@ -78,6 +80,9 @@ export default {
     }
   },
   methods: {
+    hasAuthority (authority) {
+      return this.userInfo.authorities && this.userInfo.authorities.has(authority)
+    },
     traceUrl () {
       /* 以下实现菜单高亮和url路径同步变化 */
       let url =
@@ -98,9 +103,10 @@ export default {
     },
     async getUserInfo () {
       const { data: res } = await this.$axios(
-        "/api/admin/info"
+        "/api/admin/auth"
       )
       this.userInfo = res.data
+      this.userInfo.authorities = new Set(this.userInfo.authorities.map(a => a.authority))
     },
     async initMenuList () {
       const res = await this.$axios.get("/api/home/menuList")

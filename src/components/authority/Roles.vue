@@ -103,8 +103,16 @@
             ></el-switch>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间"></el-table-column>
-        <el-table-column prop="updateTime" label="最后更新"></el-table-column>
+        <el-table-column
+          prop="createTime"
+          label="创建时间"
+          sortable
+        ></el-table-column>
+        <el-table-column
+          prop="updateTime"
+          label="最后更新"
+          sortable
+        ></el-table-column>
         <el-table-column fixed="right" label="操作" width="180">
           <template slot-scope="scope">
             <el-button
@@ -186,7 +194,7 @@ export default {
       this.pageData = pageData
     },
     async getPermissionList () {
-      const { data: { data: data } } = await this.$axios.get('/api/permission/list')
+      const { data: { data: data } } = await this.$axios.get('/api/permission/tree')
       this.permissionList = data
     },
     /* 将角色对应权限转化为树形结构 */
