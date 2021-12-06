@@ -37,10 +37,16 @@ const router = new VueRouter({
           name: 'roles',
           path: '/roles',
           component: () => import('./components/authority/Roles')
-        }, {
+        },
+        {
           name: 'permissions',
           path: '/permissions',
           component: () => import('./components/authority/Permissons')
+        },
+        {
+          name: 'goodsCategories',
+          path: '/goodsCategories',
+          component: () => import('./components/goods/Category')
         }
       ],
     },

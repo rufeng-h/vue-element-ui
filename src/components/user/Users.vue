@@ -127,6 +127,10 @@
             ></el-input>
           </el-form-item>
         </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="isUserAddDlgVisible = false">取 消</el-button>
+          <el-button type="primary" @click="addUser">确 定</el-button>
+        </span>
       </el-dialog>
 
       <!--   修改用户对话框   -->
