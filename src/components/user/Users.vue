@@ -73,7 +73,7 @@
               <el-form-item label="性别" prop="gender">
                 <el-select v-model="userAddForm.gender" placeholder="请选择">
                   <el-option
-                    v-for="item in ['男', '女']"
+                    v-for="item in ['male', 'female']"
                     :key="item"
                     :label="item"
                     :value="item"
@@ -183,7 +183,7 @@
                   disabled
                 >
                   <el-option
-                    v-for="item in ['男', '女']"
+                    v-for="item in ['male', 'female']"
                     :key="item"
                     :label="item"
                     :value="item"
@@ -423,7 +423,7 @@ export default {
       userAddFormRules: {
         'username': [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在3到10个字符', trigger: 'blur' },
+          { min: 3, max: 10, message: '长度在2到10个字符', trigger: 'blur' },
           {
             validator: uniqueCheck("username", "用户名"), trigger: 'blur',
           }
@@ -566,7 +566,7 @@ export default {
     },
     /* 修改用户 */
     showEditDlg (user) {
-      Object.assign(this.userEditForm, user)
+      this.userEditForm = Object.assign({}, user)
       this.userEditForm.roles = user.roles.map(role => role.id)
       this.isUserEditDlgVisible = true
       this.curEditingUser = user

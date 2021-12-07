@@ -30,7 +30,7 @@
 
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ name: 'home' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ name: 'goodsCatrgories' }"
+      <el-breadcrumb-item :to="{ name: 'goodsCategories' }"
         >商品管理</el-breadcrumb-item
       >
       <el-breadcrumb-item>分类管理</el-breadcrumb-item>

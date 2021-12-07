@@ -47,6 +47,11 @@ const router = new VueRouter({
           name: 'goodsCategories',
           path: '/goodsCategories',
           component: () => import('./components/goods/Category')
+        },
+        {
+          name: 'goodsCategoryAttr',
+          path: '/goodsCategoryAttr',
+          component: () => import('./components/goods/CategoryAttr')
         }
       ],
     },

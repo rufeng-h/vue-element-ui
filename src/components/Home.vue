@@ -4,7 +4,7 @@
       <el-header>
         <div>
           <img src="../assets/logo.png" alt="" />
-          <span>电商后台管理系统</span>
+          <span>管理系统</span>
         </div>
         <div>
           <span>欢迎{{ userInfo.name }}</span>
