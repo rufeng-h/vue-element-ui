@@ -291,11 +291,12 @@ export default {
       onlyTableData: [],
       cascaderProps: {
         expandTrigger: 'hover',
-        multiple: false,
         value: 'catId',
         label: 'catName',
         children: 'children',
-        filerable: true
+        filerable: true,
+        lazy: true,
+        lazyLoad: this.lazyLoadCas
       },
       addDialogVisible: false,
       attrForm: {},
@@ -307,10 +308,18 @@ export default {
       }
     }
   },
-  created () {
-    this.getCategoryList()
-  },
   methods: {
+    /* 动态加载分类 */
+    async lazyLoadCas (node, resolve) {
+      if (node.data && node.data.leaf) {
+        return resolve()
+      }
+      const pid = node.root ? 0 : node.data.catId
+      const { data: { data: data } } = await this.$axios.get(`/api/category/list?pid=${pid}`)
+      return resolve(data)
+    },
+
+
     /* 为每个参数设置输入框、属性字符串split的数组等 */
     wrapperAttr (item) {
       item.attrValArr = item.attrVals ? item.attrVals.split(',') : []

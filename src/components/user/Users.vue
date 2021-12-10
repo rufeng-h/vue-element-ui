@@ -21,9 +21,19 @@
             ></el-button>
           </el-input>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="13">
           <el-button type="primary" @click="isUserAddDlgVisible = true"
             >添加用户</el-button
+          >
+        </el-col>
+
+        <el-col :span="3">
+          <el-button
+            @click="changeShowStatus"
+            size="small"
+            plain
+            :type="showDeleted ? 'primary' : 'warning'"
+            >{{ showDeleted ? '显示' : '隐藏' }}已删除用户</el-button
           >
         </el-col>
       </el-row>
@@ -334,6 +344,7 @@
               icon="el-icon-edit"
             ></el-button>
             <el-button
+              :disabled="scope.row.status === 0"
               type="danger"
               size="small"
               icon="el-icon-delete"
@@ -388,6 +399,8 @@ export default {
       }
     }
     return {
+      /* 默认查看未逻辑删除用户 */
+      showDeleted: false,
       isSuperAdmin: false,
       pageData: {
         current: 1,
@@ -509,7 +522,10 @@ export default {
 
   },
   methods: {
-
+    changeShowStatus () {
+      this.showDeleted = !this.showDeleted
+      this.getUserList()
+    },
     /* 获取数据库所有角色 */
     async getRoles () {
       const { data: res } = await this.$axios.get('/api/role/list')
@@ -529,11 +545,12 @@ export default {
       })
     },
     /* 添加用户结束 */
+
     async getUserList () {
       try {
+        const params = { pageSize: this.pageData.size, pageNum: this.pageData.current, status: this.showDeleted ? 0 : 1 }
         this.isLoading = true
-        const { data: res } = await this.$axios.post(
-          `/api/user/list?pageSize=${this.pageData.size}&pageNum=${this.pageData.current}`)
+        const { data: res } = await this.$axios.post(`/api/user/list`, {}, { params })
         this.pageData = res.data
       } finally {
         this.isLoading = false
@@ -554,14 +571,9 @@ export default {
     },
     async deleteUser (user) {
       const { data: res } = await this.$axios.delete(`/api/user/${user.id}`)
-      const users = this.pageData.records
-      user.status = 0
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].id === user.id) {
-          // users.splice(i, 1);
-          this.$message.success(res.message)
-          return
-        }
+      if (res) {
+        this.getUserList()
+        this.$message.success(res.message)
       }
     },
     /* 修改用户 */

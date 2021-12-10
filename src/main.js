@@ -7,6 +7,7 @@ import './assets/css/common.css'
 import './assets/fonts/iconfont.css'
 import axios from "axios"
 import httpStatus from "@/httpStatus"
+import './filters'
 
 axios.defaults.baseURL = "/server"
 axios.defaults.withCredentials = true

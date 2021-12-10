@@ -79,6 +79,7 @@ export default {
       curActiveMenu: null,
     }
   },
+
   methods: {
     hasAuthority (authority) {
       return this.userInfo.authorities && this.userInfo.authorities.has(authority)

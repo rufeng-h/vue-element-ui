@@ -13,9 +13,7 @@
         </el-form-item>
         <el-form-item label="父级分类" label-width="80px" prop="pidList">
           <el-cascader
-            change-on-select
             v-model="catAddForm.pidList"
-            :options="casCatList"
             :props="cascaderProps"
             placeholder="不选择默认为1级分类"
             clearable
@@ -54,6 +52,8 @@
         </el-col>
       </el-row>
       <el-table
+        lazy
+        :load="lazyLoadTable"
         v-loading="isLoading"
         :data="pageData.records"
         border
@@ -61,7 +61,7 @@
         row-key="catId"
         stripe
         :highlight-current-row="true"
-        :tree-props="{ hasChildren: true, children: 'children' }"
+        :tree-props="{ hasChildren: 'hasChildren' }"
         empty-text="--"
       >
         <el-table-column prop="catName" label="名称"></el-table-column>
@@ -89,6 +89,16 @@
             <i v-else class="el-icon-error" style="color: red"></i>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="createTime"
+          label="创建时间"
+          sortable
+        ></el-table-column>
+        <el-table-column
+          prop="updateTime"
+          label="最后更新"
+          sortable
+        ></el-table-column>
         <el-table-column>
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini"
@@ -98,7 +108,7 @@
               icon="el-icon-error"
               type="danger"
               size="mini"
-              @click="delCategory(scope.row)"
+              @click="delCategory(scope)"
               >删除</el-button
             >
           </template>
@@ -126,21 +136,19 @@
 export default {
   created () {
     this.getCategoryList()
-    this.getCasCatList()
   },
-
   name: 'goodsCategories',
   data () {
     return {
       query: '',
-      casCatList: [],
       cascaderProps: {
+        checkStrictly: true,
         expandTrigger: 'hover',
-        multiple: false,
         value: 'catId',
         label: 'catName',
-        children: 'children',
-        filerable: true
+        filerable: true,
+        lazy: true,
+        lazyLoad: this.lazyLoadCas
       },
       catAddForm: {
         catName: '',
@@ -166,28 +174,34 @@ export default {
     }
   },
   methods: {
-    /**
-      * 获取1级和2级分类tree，级联选择器数据
-      */
-    async getCasCatList () {
-      this.isLoading = true
-      try {
-        const { data: { data: data } } = await this.$axios.get("/api/category/treeLevel2")
-        this.casCatList = data
-      } finally {
-        this.isLoading = false
+    /* 动态加载分类 */
+    async lazyLoadCas (node, resolve) {
+      if (node.data && node.data.leaf) {
+        return resolve()
       }
+      const pid = node.root ? 0 : node.data.catId
+      const { data: { data: data } } = await this.$axios.get(`/api/category/list?pid=${pid}`)
+      /* 不展示三级分类，改写leaf */
+      data.forEach(item => item.leaf = item.catLevel >= 1)
+      return resolve(data)
     },
+
+    async lazyLoadTable (tree, treeNode, resolve) {
+      const { data: { data: data } } = await this.$axios.get(`/api/category/list?pid=${tree.catId}`)
+      resolve(data)
+    },
+    /* 只获取一级分类 */
     async getCategoryList () {
       try {
         this.isLoading = true
-        const { data: { data: data } } = await this.$axios.get(`/api/category/tree`,
-          { params: { pageNum: this.pageData.current, pageSize: this.pageData.size } })
+        const { data: { data: data } } = await this.$axios.get(`/api/category/list`,
+          { params: { pageNum: this.pageData.current, pageSize: this.pageData.size, pid: 0 } })
         this.pageData = data
       } finally {
         this.isLoading = false
       }
     },
+
     async addCategory () {
       this.$refs.ruleForm.validate(async (isValid) => {
         if (!isValid) return
@@ -197,7 +211,7 @@ export default {
           const pidList = this.catAddForm.pidList
           if (pidList.length !== 0) {
             params.level = pidList.length
-            params.pid = pidList.slice(-1)[0]
+            params.pid = pidList[pidList.length - 1]
           }
           const { data: res } = await this.$axios.post("/api/category/add", {}, { params: params })
           if (res) {
@@ -205,14 +219,15 @@ export default {
             this.isCatAddDlgVisible = false
             this.$refs.ruleForm.resetFields()
             this.getCategoryList()
-            this.getCasCatList()
           }
         } finally {
           this.isLoading = false
         }
       })
     },
-    async delCategory (category) {
+    async delCategory (scope) {
+      console.log(scope)
+      const category = scope.row
       const toDel = []
       const getChildrenId = (cate) => {
         toDel.push(cate.catId)
